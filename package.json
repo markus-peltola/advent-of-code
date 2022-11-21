@@ -1,0 +1,15 @@
+{
+  "name": "advent-of-code-2022",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc -w",
+    "run day1": "node dist/day1/day1.js"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "@types/node": "^18.11.9",
+    "typescript": "^4.0.0"
+  }
+}
