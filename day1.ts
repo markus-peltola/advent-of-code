@@ -1,7 +1,7 @@
 import * as fs from 'fs';
 
 async function main() {
-  const input = fs.readFileSync('input/day1_1.txt');
+  const input = fs.readFileSync('input/day1.txt');
   const rows = input.toString().split('\r\n');
 
   const caloriesList: number[] = [];
@@ -26,5 +26,4 @@ async function main() {
   console.log(caloriesList[caloriesList.length - 1] + caloriesList[caloriesList.length - 2] + caloriesList[caloriesList.length - 3]);
 }
 
-// part1();
 main();
