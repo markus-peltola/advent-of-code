@@ -5,7 +5,7 @@
   "scripts": {
     "build": "tsc",
     "watch": "tsc -w",
-    "run": "node dist/day8.js"
+    "run": "node dist/day9.js"
   },
   "dependencies": {},
   "devDependencies": {
