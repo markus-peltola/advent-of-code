@@ -2,6 +2,15 @@ import fs from 'fs';
 
 const DAY = '03';
 
+interface LocationData {
+  type: 'partNumber' | 'symbol';
+  value: string | number;
+  coordinates: {
+    x: number;
+    y: number;
+  };
+}
+
 async function part1(fileName: string) {
   const input = fs.readFileSync(`input/${fileName}`);
   const rows = input.toString().split('\r\n');
@@ -66,14 +75,91 @@ function checkForSymbols(rows: string[], indexRange: number[]): boolean {
   return false;
 }
 
+function calculateGearRatio(potenialGear: LocationData, parts: LocationData[]): number | undefined {
+  // console.log(`Checking potenial gear with coords ${potenialGear.coordinates.y}, ${potenialGear.coordinates.x}`);
+  const nearByParts: LocationData[] = [];
+  const accetableXCoords = [potenialGear.coordinates.x, potenialGear.coordinates.x + 1, potenialGear.coordinates.x - 1];
+
+  const partsToCheck = parts.filter((part) => {
+    if (
+      (part.coordinates.y === potenialGear.coordinates.y ||
+        part.coordinates.y === potenialGear.coordinates.y - 1 ||
+        part.coordinates.y === potenialGear.coordinates.y + 1) &&
+      (part.coordinates.x === potenialGear.coordinates.x ||
+        part.coordinates.x === potenialGear.coordinates.x + 1 ||
+        part.coordinates.x === potenialGear.coordinates.x - 1 ||
+        part.coordinates.x === potenialGear.coordinates.x - 2 ||
+        part.coordinates.x === potenialGear.coordinates.x - 3)
+    )
+      return true;
+  });
+
+  for (const part of partsToCheck) {
+    // Add all the coords that the part takes up on x axis
+    const partXCoords = [part.coordinates.x];
+    if (part.value.toString().length > 1) partXCoords.push(part.coordinates.x + 1);
+    if (part.value.toString().length > 2) partXCoords.push(part.coordinates.x + 2);
+
+    // Check if the part is in acceptable range of the potential gear
+    for (const partXCoord of partXCoords) {
+      if (accetableXCoords.includes(partXCoord)) {
+        nearByParts.push(part);
+        break;
+      }
+    }
+  }
+
+  if (nearByParts.length === 2) return nearByParts.reduce((acc, cur) => acc * (cur.value as number), 1);
+  else return undefined;
+}
+
 async function part2(fileName: string) {
   const input = fs.readFileSync(`input/${fileName}`);
   const rows = input.toString().split('\r\n');
+
+  const locationData: LocationData[] = [];
+
+  for (let y = 0; y < rows.length; y++) {
+    let previousCharWasNumber = false;
+    for (let x = 0; x < rows[y].length; x++) {
+      if (rows[y][x] === '.') {
+        previousCharWasNumber = false;
+        continue;
+      }
+      if (!!rows[y][x].match(/\d+/) && !previousCharWasNumber) {
+        previousCharWasNumber = true;
+        locationData.push({
+          type: 'partNumber',
+          value: parseInt(rows[y].substring(x).match(/\d+/)![0]),
+          coordinates: { x, y }
+        });
+      } else if (!rows[y][x].match(/\d+/)) {
+        previousCharWasNumber = false;
+        locationData.push({
+          type: 'symbol',
+          value: rows[y][x],
+          coordinates: { x, y }
+        });
+      }
+    }
+  }
+
+  const parts = locationData.filter((data) => data.type === 'partNumber');
+  const potenialGears = locationData.filter((data) => data.value === '*');
+
+  const gearRatios: number[] = [];
+
+  for (const potenialGear of potenialGears) {
+    const gearRatio = calculateGearRatio(potenialGear, parts);
+    if (gearRatio) {
+      gearRatios.push(gearRatio);
+    }
+  }
+
+  console.log(gearRatios.reduce((acc, cur) => acc + cur, 0));
 }
 
 // part1(`day${DAY}_example.txt`);
 // part1(`day${DAY}.txt`);
-part2(`day${DAY}_example.txt`);
-// part2(`day${DAY}.txt`);
-
-// 554887 too big
+// part2(`day${DAY}_example.txt`);
+part2(`day${DAY}.txt`);
