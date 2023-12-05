@@ -171,5 +171,5 @@ async function part2(fileName: string) {
 
 // part1(`day${DAY}_example.txt`);
 // part1(`day${DAY}.txt`);
-part2(`day${DAY}_example.txt`);
-// part2(`day${DAY}.txt`);
+// part2(`day${DAY}_example.txt`);
+part2(`day${DAY}.txt`);
