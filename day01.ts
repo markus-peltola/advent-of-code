@@ -1,99 +1,51 @@
 import fs from 'fs';
 
-const digitStrings = ['one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine'];
+const useTestInput = false;
+
+const inputFile = fs.readFileSync('input/day01.txt');
+
+const testInput: string = `3   4
+4   3
+2   5
+1   3
+3   9
+3   3`
+
+let inputRows: string[];
+if (useTestInput) {
+  inputRows = testInput.split('\n');
+} else {
+  inputRows = inputFile.toString().split('\n').slice(0, -1);
+}
 
 async function part1() {
-  const input = fs.readFileSync('input/day01.txt');
-  const rows = input.toString().split('\r\n');
+  const list1 = inputRows.map(row => parseInt(row.split(/\s+/)[0])).sort((a, b) => a - b);
+  const list2 = inputRows.map(row => parseInt(row.split(/\s+/)[1])).sort((a, b) => a - b);
 
-  const digits: number[] = [];
+  let counter = 0;
 
-  rows.forEach((row) => {
-    const isDigit = new RegExp(/\d/);
-    let firstDigit = '';
-    let lastDigit = '';
-    for (let i = 0; i < row.length; i++) {
-      if (isDigit.test(row[i])) {
-        if (!firstDigit) firstDigit = row[i];
-        lastDigit = row[i];
-      }
-    }
-    digits.push(parseInt(firstDigit + lastDigit));
-  });
+  for (let x = 0; x < list1.length; x++) {
+    counter += Math.abs(list1[x] - list2[x]);
+  }
 
-  console.log(digits.reduce((acc, cur) => acc + cur, 0));
+  console.log(counter);
 }
 
 async function part2() {
-  const input = fs.readFileSync('input/day01.txt');
-  const rows = input.toString().split('\r\n');
+  const list1 = inputRows.map(row => parseInt(row.split(/\s+/)[0]));
+  const list2 = inputRows.map(row => parseInt(row.split(/\s+/)[1]));
 
-  const digits: number[] = [];
+  let similarityScore = 0;
 
-  rows.forEach((row) => {
-    const isDigit = new RegExp(/\d/);
-    const digitIndexMap = new Map<number, string>();
-    const indexes: number[] = [];
-
-    for (let i = 0; i < row.length; i++) {
-      if (isDigit.test(row[i])) {
-        digitIndexMap.set(i, row[i]);
-        indexes.push(i);
-      } else {
-        for (const digitString of digitStrings) {
-          if (row.startsWith(digitString, i)) {
-            digitIndexMap.set(i, getDigit(digitString));
-            indexes.push(i);
-          }
-        }
-      }
+  for (const list1number of list1) {
+    let hits = 0;
+    for (const list2number of list2) {
+      if (list1number === list2number) hits++;
     }
-
-    const minIndex = Math.min(...indexes);
-    const maxIndex = Math.max(...indexes);
-
-    const digit = parseInt(digitIndexMap.get(minIndex)! + digitIndexMap.get(maxIndex)!);
-    digits.push(digit);
-  });
-
-  console.log(digits.reduce((acc, cur) => acc + cur, 0));
-}
-
-function getDigit(digitString: string): string {
-  let digit: string;
-  switch (digitString) {
-    case 'one':
-      digit = '1';
-      break;
-    case 'two':
-      digit = '2';
-      break;
-    case 'three':
-      digit = '3';
-      break;
-    case 'four':
-      digit = '4';
-      break;
-    case 'five':
-      digit = '5';
-      break;
-    case 'six':
-      digit = '6';
-      break;
-    case 'seven':
-      digit = '7';
-      break;
-    case 'eight':
-      digit = '8';
-      break;
-    case 'nine':
-      digit = '9';
-      break;
-    default:
-      digit = '';
-      break;
+    if (hits) similarityScore += list1number * hits;
   }
-  return digit;
+
+  console.log(similarityScore);
 }
 
 // part1();
