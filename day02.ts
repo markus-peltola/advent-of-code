@@ -50,68 +50,60 @@ async function part1() {
 }
 
 async function part2() {
-  const logStream = fs.createWriteStream('logs/day02_part2.txt', { flags: 'a' });
   let safeReports = 0;
   for (const report of reports) {
     const levels = report.split(' ').map((level) => parseInt(level));
-    // logStream.write(`Testing report: ${levels}\n`);
     let currentReportSafe = false;
 
-    if (testIncreasingLevels(levels, false, logStream)) {
+    if (testIncreasingLevels(levels, false)) {
       safeReports++;
       currentReportSafe = true;
       continue;
     }
 
-    if (testDecreasingLevels(levels, false, logStream)) {
+    if (testDecreasingLevels(levels, false)) {
       safeReports++;
       currentReportSafe = true;
       continue;
     }
-    logStream.write(`${levels}\n`);
   }
 
   console.log(safeReports);
-  logStream.end();
 }
 
-function testIncreasingLevels(levels: number[], lifelineUsed: boolean, logStream: fs.WriteStream): boolean {
+function testIncreasingLevels(levels: number[], lifelineUsed: boolean): boolean {
   for (let x = 1; x < levels.length; x++) {
     const levelChange = levels[x] - levels[x - 1];
     if (levelChange < 1 || levelChange > 3) {
       if (!lifelineUsed) {
         const lifelineLevels = [...levels.slice(0, x - 1), ...levels.slice(x)];
-        if (testIncreasingLevels(lifelineLevels, true, logStream)) {
-          // logStream.write(`Report ${lifelineLevels} found to be safe when Problem Dampener removed ${levels[x - 1]} at index ${x - 1}\n`);
+        const lifelineLevels2 = [...levels.slice(0, x), ...levels.slice(x + 1)];
+        if (testIncreasingLevels(lifelineLevels, true) || testIncreasingLevels(lifelineLevels2, true)) {
           return true;
-        } else if (testIncreasingLevels(levels.slice(0, -1), true, logStream)) {
-          // logStream.write(`Report ${levels.slice(0, -1)} found to be safe when Problem Dampener removed the last level\n`);
+        } else if (testIncreasingLevels(levels.slice(0, -1), true)) {
           return true;
         } else return false;
       } else return false;
     }
   }
-  // logStream.write(`Report ${levels} found to be safe.\n`);
   return true;
 }
 
-function testDecreasingLevels(levels: number[], lifelineUsed: boolean, logStream: fs.WriteStream): boolean {
+function testDecreasingLevels(levels: number[], lifelineUsed: boolean): boolean {
   for (let x = 1; x < levels.length; x++) {
     const levelChange = levels[x - 1] - levels[x];
     if (levelChange < 1 || levelChange > 3) {
       if (!lifelineUsed) {
         const lifelineLevels = [...levels.slice(0, x - 1), ...levels.slice(x)];
-        if (testDecreasingLevels(lifelineLevels, true, logStream)) {
-          // logStream.write(`Report ${lifelineLevels} found to be safe when Problem Dampener removed ${levels[x - 1]} at index ${x - 1}\n`);
+        const lifelineLevels2 = [...levels.slice(0, x), ...levels.slice(x + 1)];
+        if (testDecreasingLevels(lifelineLevels, true) || testDecreasingLevels(lifelineLevels2, true)) {
           return true;
-        } else if (testDecreasingLevels(levels.slice(0, -1), true, logStream)) {
-          // logStream.write(`Report ${levels.slice(0, -1)} found to be safe when Problem Dampener removed the last level\n`);
+        } else if (testDecreasingLevels(levels.slice(0, -1), true)) {
           return true;
         } else return false;
       } else return false;
     }
   }
-  // logStream.write(`Report ${levels} found to be safe.\n`);
   return true;
 }
 
